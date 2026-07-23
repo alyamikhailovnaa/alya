@@ -35,8 +35,9 @@ def embed_and_store(items):
     for item in items:
         text_to_embed = f"Title: {item['title']}\n\nContent: {item['content']}"
         try:
+            # Menggunakan model embedding lama yang berukuran 768 dimensi
             response = client.models.embed_content(
-                model='text-embedding-004',
+                model='gemini-embedding-001',
                 contents=text_to_embed
             )
             embedding = response.embeddings[0].values
@@ -63,11 +64,17 @@ def embed_and_store(items):
     if vectors:
         try:
             index.upsert(vectors=vectors)
-            logger.info(f"Successfully upserted {len(vectors)} items to Pinecone index '{index_name}'.")
+            msg = f"[BERHASIL] Mengirim {len(vectors)} data ke index Pinecone '{index_name}'!"
+            logger.info(msg)
+            print(msg)
             return True
         except Exception as e:
-            logger.error(f"Error upserting to Pinecone: {e}")
+            err = f"[ERROR] Gagal mengirim data ke Pinecone: {e}"
+            logger.error(err)
+            print(err)
             return False
     else:
-        logger.info("No vectors to upsert.")
+        msg = "[INFO] Tidak ada data baru yang lolos Gatekeeper hari ini. (0 data dikirim ke Pinecone)"
+        logger.info(msg)
+        print(msg)
         return True

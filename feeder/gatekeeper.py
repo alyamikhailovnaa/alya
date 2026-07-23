@@ -19,10 +19,10 @@ def filter_data(items):
     client = genai.Client(api_key=api_key)
     filtered = []
     
-    logger.info(f"Passing {len(items[:10])} items through the Gatekeeper (with 15s rate limiting)...")
+    logger.info(f"Passing {len(items[:5])} items through the Gatekeeper (with 15s rate limiting)...")
     
-    # Process only the top 3 items to fit within strict free tier constraints for this test
-    for item in items[:3]:
+    # Process only the top 5 items to fit within strict free tier constraints for this test
+    for item in items[:5]:
         prompt = f"""
         Analyze this news item:
         Title: {item['title']}
@@ -33,22 +33,28 @@ def filter_data(items):
         Reply with exactly 'NO' if this is new information (after May 2024).
         """
         try:
-            # Using standard gemini-1.5-flash model
+            # Using valid model from 2026 available to this key
             response = client.models.generate_content(
-                model='gemini-1.5-flash',
+                model='gemini-3.5-flash',
                 contents=prompt,
             )
             answer = response.text.strip().upper()
             
             if 'NO' in answer:
-                logger.info(f"[PASSED] {item['title']}")
+                msg = f"[PASSED] Data lolos Gatekeeper: {item['title']}"
+                logger.info(msg)
+                print(msg)
                 filtered.append(item)
             else:
-                logger.info(f"[REJECTED] {item['title']}")
+                msg = f"[REJECTED] Topik sudah lama/umum: {item['title']}"
+                logger.info(msg)
+                print(msg)
         except Exception as e:
-            logger.error(f"Gatekeeper error on item '{item['title']}': {e}")
+            err = f"[ERROR] Gatekeeper error pada '{item['title']}': {e}"
+            logger.error(err)
+            print(err)
             
-        # Sleep to respect strict free tier rate limit (approx 5 requests per minute)
+        # Sleep to respect strict free tier rate limit
         time.sleep(15)
             
     return filtered
