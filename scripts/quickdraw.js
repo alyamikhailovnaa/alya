@@ -37,4 +37,7 @@ async function main() {
   console.log(`Issue #${issue.number} closed successfully.`);
 }
 
-main().catch(console.error);
+main().catch(err => {
+  console.error('[ERROR] Quickdraw automation failed:', err.message);
+  process.exit(1);
+});

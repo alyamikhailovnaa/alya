@@ -97,4 +97,7 @@ async function main() {
   console.log('Branch cleaned up.');
 }
 
-main().catch(console.error);
+main().catch(err => {
+  console.error('[ERROR] YOLO automation failed:', err.message);
+  process.exit(1);
+});

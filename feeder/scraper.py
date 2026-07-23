@@ -16,10 +16,11 @@ def scrape_data():
     """
     logger.info(f"Fetching RSS feed from {RSS_URL}...")
     try:
-        response = requests.get(RSS_URL, timeout=10)
+        headers = {"User-Agent": "ProjectChimera-Bot/1.0"}
+        response = requests.get(RSS_URL, headers=headers, timeout=10)
         response.raise_for_status()
     except Exception as e:
-        logger.error(f"Failed to fetch RSS: {e}")
+        logger.error(f"Failed to fetch RSS. Request aborted.")
         return []
 
     try:

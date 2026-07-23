@@ -56,8 +56,8 @@ def embed_and_store(items):
                 }
             })
             
-        except Exception as e:
-            logger.error(f"Error embedding item '{item['title']}': {e}")
+        except Exception:
+            logger.error(f"Error embedding item '{item['title']}': Failed to process.")
             
         time.sleep(2)
             
@@ -68,8 +68,8 @@ def embed_and_store(items):
             logger.info(msg)
             print(msg)
             return True
-        except Exception as e:
-            err = f"[ERROR] Gagal mengirim data ke Pinecone: {e}"
+        except Exception:
+            err = "[ERROR] Gagal mengirim data ke Pinecone (API Error)."
             logger.error(err)
             print(err)
             return False

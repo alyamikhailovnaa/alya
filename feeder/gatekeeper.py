@@ -49,8 +49,8 @@ def filter_data(items):
                 msg = f"[REJECTED] Topik sudah lama/umum: {item['title']}"
                 logger.info(msg)
                 print(msg)
-        except Exception as e:
-            err = f"[ERROR] Gatekeeper error pada '{item['title']}': {e}"
+        except Exception:
+            err = f"[ERROR] Gatekeeper API error pada '{item['title']}'. Data skipped."
             logger.error(err)
             print(err)
             
