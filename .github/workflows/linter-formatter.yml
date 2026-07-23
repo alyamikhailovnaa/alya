@@ -1,0 +1,44 @@
+name: Linter & Formatter Bot
+
+on:
+  push:
+    branches-ignore:
+      - 'yolo-**' # Ignore YOLO automated branches to prevent loop
+
+jobs:
+  lint-and-format:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Prettier
+        run: npx prettier --write "scripts/**/*.js"
+
+      - name: Check for modified files
+        id: git-check
+        run: echo "modified=$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        if: steps.git-check.outputs.modified == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          commit-message: "style: auto-format code using Prettier"
+          title: "Style: Automated Code Formatting"
+          body: "This PR contains automated code formatting changes applied by Prettier."
+          branch: "auto-format/${{ github.ref_name }}"
+          base: "${{ github.ref_name }}"

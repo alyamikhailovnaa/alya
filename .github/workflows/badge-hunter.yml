@@ -1,0 +1,47 @@
+name: Badge Hunter & Daily Activity
+
+on:
+  schedule:
+    # Runs at 03:30 UTC every day
+    - cron: '30 3 * * *'
+  workflow_dispatch: # Allows manual trigger from UI
+
+jobs:
+  run-bots:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Activity Log Script
+        run: node scripts/activity.js
+
+      - name: Commit Activity Log
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: automated daily activity log update"
+          file_pattern: "logs/activity.md"
+
+      - name: Run Quickdraw Hunter
+        run: node scripts/quickdraw.js
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+
+      - name: Run YOLO Hunter
+        run: node scripts/yolo.js
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
